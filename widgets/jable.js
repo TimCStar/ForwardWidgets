@@ -2,9 +2,9 @@ WidgetMetadata = {
   id: "jable",
   title: "Jable",
   description: "获取 Jable 视频",
-  author: "nibiru",
+  author: "nibiru, TimCStar",
   site: "https://github.com/quantumultxx/FW-Widgets",
-  version: "1.0.8",
+  version: "1.0.9",
   requiredVersion: "0.0.1",
   detailCacheDuration: 60,
   modules: [
@@ -1225,28 +1225,41 @@ async function parseHtml(htmlContent) {
 
   let sections = [];
   const sectionElements = $(sectionSelector).toArray();
-  
+
   for (const sectionElement of sectionElements) {
     const $sectionElement = $(sectionElement);
     var items = [];
     const sectionTitle = $sectionElement.find(".title-box .h3-md").first();
     const sectionTitleText = sectionTitle.text();
     const itemElements = $sectionElement.find(itemSelector).toArray();
-    
+
     if (itemElements && itemElements.length > 0) {
       for (const itemElement of itemElements) {
         const $itemElement = $(itemElement);
         const titleId = $itemElement.find(titleSelector).first();
         const url = titleId.attr("href") || "";
-        
+
         if (url && url.includes("jable.tv")) {
           const durationId = $itemElement.find(durationSelector).first();
           const coverId = $itemElement.find(coverSelector).first();
-          const cover = coverId.attr("data-src");
+          let cover = coverId.attr("data-src");
           const video = coverId.attr("data-preview");
           const title = titleId.text();
           const duration = durationId.text().trim();
-          
+
+          // 自动重写 cover 为 preview.jpg 格式
+          // 例：https://assets-cdn.jable.tv/contents/videos_screenshots/51000/51740/320x180/1.jpg
+          // 转为：https://assets-cdn.jable.tv/contents/videos_screenshots/51000/51740/preview.jpg
+          if (cover && /\/videos_screenshots\/(\d+)\/(\d+)\//.test(cover) && !/preview\.jpg$/.test(cover)) {
+            // 提取 packId 和 videoId
+            const match = cover.match(/\/videos_screenshots\/(\d+)\/(\d+)\//);
+            if (match) {
+              const packId = match[1];
+              const videoId = match[2];
+              cover = `https://assets-cdn.jable.tv/contents/videos_screenshots/${packId}/${videoId}/preview.jpg`;
+            }
+          }
+
           const item = {
             id: url,
             type: "url",
@@ -1262,7 +1275,7 @@ async function parseHtml(htmlContent) {
         }
       }
     }
-    
+
     if (items.length > 0) {
       sections.push({
         title: sectionTitleText,
@@ -1270,7 +1283,7 @@ async function parseHtml(htmlContent) {
       });
     }
   }
-  
+
   return sections;
 }
 
