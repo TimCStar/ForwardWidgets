@@ -1269,7 +1269,8 @@ async function parseHtml(htmlContent) {
             link: url,
             mediaType: "movie",
             durationText: duration,
-            description: duration
+            description: duration,
+            playerType: "system",
           };
           items.push(item);
         }
@@ -1302,6 +1303,7 @@ async function loadDetail(link) {
     type: "detail",
     videoUrl: hlsUrl,
     mediaType: "movie",
+    playerType: "system",
     customHeaders: {
       "Referer": link,
       "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
